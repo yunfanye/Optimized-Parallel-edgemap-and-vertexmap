@@ -196,7 +196,7 @@ int main(int argc, char** argv)
   if (arguments.app == BFS || arguments.app == GRADE) {
     /* BFS */
     timingApp(timing, "BFS");
-    possiblePoints += 5;
+    possiblePoints += MAX_POINTS;
     points += TIME_MIC(bfs_ref, bfs, int)
       (timing, arguments.device, numTrials, thread_count, incremental,
       compareArrays<int>, graph);
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
   if (arguments.app == PAGERANK || arguments.app == GRADE) {
     /* PageRank */
     timingApp(timing, "PageRank");
-    possiblePoints += 5;
+    possiblePoints += MAX_POINTS;
     points += TIME_MIC(pageRankRefWrapper, pageRankWrapper, float)
       (timing, arguments.device, numTrials, thread_count, incremental,
       compareApprox<float>, graph);
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
   if (arguments.app == KBFS || arguments.app == GRADE) {
     /* kBFS */
     timingApp(timing, "kBFS");
-    possiblePoints += 5;
+    possiblePoints += MAX_POINTS;
     points += TIME_MIC(kBFS_ref, kBFS, int)
       (timing, arguments.device, numTrials, thread_count, incremental,
       compareArraysAndRadiiEst<int>, graph);
