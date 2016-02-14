@@ -101,7 +101,9 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
 
   VertexSet* frontier = newVertexSet(SPARSE, numNodes, numNodes);
   frontier->size = numNodes;
-  memset(frontier->vertices, 1, sizeof(Vertex) * numNodes);
+  for (int i = 0; i < numNodes; i++) {
+    frontier->vertices[i] = 1;
+  }
 
   float error = INFINITY;
   while (error > convergence) {

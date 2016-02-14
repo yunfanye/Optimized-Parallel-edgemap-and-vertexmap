@@ -128,7 +128,8 @@ void kBFS(graph *g, int *distField) {
   int iter = 0;
 
   // set up globals
-  memset(distField, NA, g->num_nodes * sizeof(int));
+  for (int i = 0; i < g->num_nodes; i++)
+    distField[i] = NA;
   radii = distField;
 
   visited = (int**) malloc(sizeof(int*) * g->num_nodes);
