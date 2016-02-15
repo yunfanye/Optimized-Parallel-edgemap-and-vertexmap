@@ -102,7 +102,7 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
   VertexSet* frontier = newVertexSet(SPARSE, numNodes, numNodes);
   frontier->size = numNodes;
   for (int i = 0; i < numNodes; i++) {
-    frontier->vertices[i] = 1;
+    addVertex(frontier, i);
   }
 
   float error = INFINITY;

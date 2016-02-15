@@ -44,7 +44,7 @@ void bfs(graph *g, int *solution) {
   // Initialize frontier.
   VertexSet* frontier = newVertexSet(SPARSE, 1, num_nodes(g));
   frontier->size = 1;
-  frontier->vertices[0] = 0;
+  addVertex(frontier, 0);
 
   VertexSet *newFrontier;
 

@@ -152,14 +152,14 @@ void kBFS(graph *g, int *distField) {
   VertexSet* frontier = newVertexSet(SPARSE, K, g->num_nodes);
   frontier->size = K; // why isn't this already filled in for you?
   for (int i = 0; i < K; i++) {
-    frontier->vertices[i] = S[i];
+    addVertex(frontier, S[i]);
   }
 
   // iterate over values 1 thru k to do initialization
   VertexSet* ks = newVertexSet(SPARSE, K, g->num_nodes);
   ks->size = K;
   for (int i = 0; i < K; i++) 
-    ks->vertices[i] = i;
+    addVertex(ks, i);
 
   Init i(S, visited, nextVisited, radii);
   vertexMap(ks, i, NORETURN);
