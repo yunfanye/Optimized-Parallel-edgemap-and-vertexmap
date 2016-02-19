@@ -10,7 +10,7 @@
 #include "graph.h"
 
 #include "mic.h"
-
+#include "ts_hashtable.h"
 /*
  * edgeMap --
  * 
@@ -45,17 +45,17 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 
   // remove_duplicates(outputSubset)
   // return outputSubset
-	int numNode = u -> size;
+	int size = u -> size;
 	Vertex * vertices = u -> vertices;
-	int capacity = numNode ;
-	for (int i = 0; i < numNode; i++) {
-		int diff = outgoing_end(g, vertices[i]) - outgoing_begin(g, vertices[i]);
+	int capacity = 1000;
+	for (int i = 0; i < size; i++) {
+		int diff = outgoing_size(g, vertices[i]);
 		capacity += diff;
 	}
 	VertexSet* ret = newVertexSet(SPARSE, capacity, num_nodes(g));
 
 	#pragma omp parallel for 
-	for (int i = 0; i < numNode; i++) {
+	for (int i = 0; i < size; i++) {
 		const Vertex* start = outgoing_begin(g, vertices[i]);
 		const Vertex* end = outgoing_end(g, vertices[i]);
 		for (const Vertex* k = start; k != end; k++) {
@@ -64,6 +64,17 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 			}
 		}
 	}
+	// remove duplicates
+	int count = ret -> size;
+	Vertex * ret_vertices = ret -> vertices;
+	ts_hashtable * hash_table = new_hashtable(count | 1); //odd number capacity
+	for (int i = 0; i < count; i++)
+	{
+		while(i < ret -> size && hashtable_set(hash_table, ret_vertices[i])) {
+			removeVertexAt(ret, i);
+		}
+	}
+	hashtable_free(hash_table);
 	return ret;
 }
 

@@ -13,7 +13,7 @@ $(APP_NAME): CXXFLAGS = -I. -O3 -Wall -openmp -offload-attribute-target=mic -DRU
 
 # Compile for CPU
 cpu: CXX = g++ -m64 -std=c++11
-cpu: CXXFLAGS = -I. -O3 -Wall -fopenmp -Wno-unknown-pragmas
+cpu: CXXFLAGS = -I. -g -Wall -fopenmp -Wno-unknown-pragmas
 
 .PHONY: dirs clean jobs grade
 
@@ -23,7 +23,7 @@ dirs:
 clean:
 		/bin/rm -rf $(OBJDIR) *~ $(APP_NAME) jobs/$(USER)_*.job
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/parse_args.o $(OBJDIR)/graph.o $(OBJDIR)/vertex_set.o $(APPSOBJDIR)/bfs.o $(APPSOBJDIR)/page_rank.o $(APPSOBJDIR)/graph_decomposition.o $(APPSOBJDIR)/kBFS.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/parse_args.o $(OBJDIR)/ts_hashtable.o $(OBJDIR)/graph.o $(OBJDIR)/vertex_set.o $(APPSOBJDIR)/bfs.o $(APPSOBJDIR)/page_rank.o $(APPSOBJDIR)/graph_decomposition.o $(APPSOBJDIR)/kBFS.o
 
 # Generate job for specific app and graph
 jobs: $(APP_NAME)
@@ -49,3 +49,6 @@ $(OBJDIR)/main.o: CycleTimer.h grade.h
 
 cpu_run: cpu
 	./paraGraph bfs ./graph/soc-slashdot_900k.graph; ./paraGraph kbfs ./graph/soc-slashdot_900k.graph; ./paraGraph pagerank ./graph/soc-slashdot_900k.graph;
+
+cpu_tiny: cpu
+	./paraGraph bfs ./graph/tiny.graph
