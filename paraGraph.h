@@ -50,14 +50,14 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
  //  const Vertex* end = outgoing_end(g, i);
  //  for (const Vertex* v=start; v!=end; v++)
  //    printf("Edge %u %u\n", i, *v);
-	int numNode = u.numNode;
+ /*	int numNode = u.numNode;
 	int start, end;
 	VertexSet* ret = newVertexSet(SPARSE, numNode, numNode);
 
 	for (int i = 0; i < numNode; i++) {
 		Vertex* start = outgoing()
 	}
-
+*/
   return NULL;
 }
 
@@ -83,23 +83,24 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 template <class F>
 VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 {
-// TODO: Implement
 // 1. apply F to all vertices in U
 //   2. return a new vertex subset containing all vertices u in U
 //      for which F(u) == true
-	int numNode = u.numNode;
-
-	VertexSet* ret = newVertexSet(SPARSE, numNode, numNode);
-	for (int i = 0; i < numNode; i++) {
-		if (F(u[i])) {
-			addVertex(ret, u[i]);
+	if (returnSet) {
+		int numNode = u -> size;
+		VertexSet* ret = newVertexSet(SPARSE, numNode, numNode);
+		Vertex * vertices = u -> vertices;
+		#pragma omp parallel for 
+		for (int i = 0; i < numNode; i++) {
+			if (f(vertices[i])) {
+				#pragma omp critical
+				addVertex(ret, vertices[i]);
+			}
 		}
-	}
-
-
-	if (returnSet)
 		return ret;
-	else return NULL;
+	}
+	else 
+		return NULL;
 }
 
 #endif /* __PARAGRAPH_H__ */
