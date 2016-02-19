@@ -1,6 +1,7 @@
 #ifndef __PARAGRAPH_H__
 #define __PARAGRAPH_H__
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,15 +58,12 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		const Vertex* start = outgoing_begin(g, vertices[i]);
 		const Vertex* end = outgoing_end(g, vertices[i]);
 		for (const Vertex* k = start; k != end; k++) {
-			if (f.cond(vertices[i]) && f.update(vertices[i], *k)) {
+			if (f.cond(*k) && f.update(vertices[i], *k)) {
 				#pragma omp critical
-				addVertex(ret, vertices[i]);
+				addVertex(ret, *k);
 			}
 		}
 	}
-
-	
-
 	return ret;
 }
 
