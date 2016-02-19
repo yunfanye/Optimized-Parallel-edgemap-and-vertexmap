@@ -46,3 +46,6 @@ $(OBJDIR)/%.o: %.cpp
 		$(CXX) $< $(CXXFLAGS) -c -o $@
 
 $(OBJDIR)/main.o: CycleTimer.h grade.h
+
+cpu_run: cpu
+	./paraGraph bfs ./graph/soc-slashdot_900k.graph
