@@ -53,7 +53,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 	Vertex * vertices = u -> vertices;
 	VertexSet* ret;
 	bool need_free = false;
-	int capacity = 1000;
+	int capacity = 10;
 	if(size < total_num / 10) {		
 		for (int i = 0; i < size; i++) {
 			int diff = outgoing_size(g, vertices[i]);
@@ -118,7 +118,6 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 			for (const Vertex* k = start; k != end; k++) {
 				if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i)) {
 					addVertex(ret, i);
-					break;
 				}
 			}
 		}
