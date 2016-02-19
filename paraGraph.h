@@ -44,21 +44,26 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 
   // remove_duplicates(outputSubset)
   // return outputSubset
-
-
-	// const Vertex* start = outgoing_begin(g, i);
- //  const Vertex* end = outgoing_end(g, i);
- //  for (const Vertex* v=start; v!=end; v++)
- //    printf("Edge %u %u\n", i, *v);
- /*	int numNode = u.numNode;
-	int start, end;
-	VertexSet* ret = newVertexSet(SPARSE, numNode, numNode);
-
+	int numNode = u -> size;
+	Vertex * vertices = u -> vertices;
+	int capacity = 0;
 	for (int i = 0; i < numNode; i++) {
-		Vertex* start = outgoing()
+		capacity += outgoing_end(g, vertices[i]) - outgoing_begin(g, vertices[i]);
 	}
-*/
-  return NULL;
+	VertexSet* ret = newVertexSet(SPARSE, capacity, numNode);
+
+	#pragma omp parallel for 
+	for (int i = 0; i < numNode; i++) {
+		int start = outgoing_begin(g, vertices[i]);
+		int end = outgoing_end(g, vertices[i]);
+		for (int k = start; k != end; k++) {
+			if (f.cond(vertices[i]) && f.update(vertices[i], k)) {
+				#pragma omp critical
+				addVertex(ret, vertices[i]);
+			}
+		}
+	}
+	return ret;
 }
 
 
