@@ -11,6 +11,9 @@
 
 #include "mic.h"
 #include "ts_hashtable.h"
+
+#include <time.h>
+
 /*
  * edgeMap --
  * 
@@ -120,7 +123,6 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 			}
 		}
 	}
-
 	if(need_free)
 		freeVertexSet(u);
 
@@ -153,23 +155,46 @@ VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 	// 2. return a new vertex subset containing all vertices u in U
 	//      for which F(u) == true
 	int size = u -> size;
-	Vertex * vertices = u -> vertices;
-	if (returnSet) {
-		VertexSet* ret = newVertexSet(SPARSE, size, u -> numNodes);		
-		#pragma omp parallel for 
-		for (int i = 0; i < size; i++) {
-			if (f(vertices[i])) {
-				addVertex(ret, vertices[i]);
+	int numNodes = u -> numNodes;
+	if(u -> type == SPARSE) {
+		Vertex * vertices = u -> vertices;
+		if (returnSet) {
+			VertexSet* ret = newVertexSet(SPARSE, size, numNodes);		
+			#pragma omp parallel for 
+			for (int i = 0; i < size; i++) {
+				if (f(vertices[i])) {
+					addVertex(ret, vertices[i]);
+				}
 			}
+			return ret;
 		}
-		return ret;
+		else {
+			#pragma omp parallel for 
+			for (int i = 0; i < size; i++) {
+				f(vertices[i]);
+			}
+			return NULL;
+		}
 	}
 	else {
-		#pragma omp parallel for 
-		for (int i = 0; i < size; i++) {
-			f(vertices[i]);
+		if (returnSet) {
+			VertexSet* ret = newVertexSet(DENSE, size, numNodes);		
+			#pragma omp parallel for 
+			for (int i = 0; i < numNodes; i++) {
+				if (hasVertex(u, i) && f(i)) {
+					addVertex(ret, i);
+				}
+			}
+			return ret;
 		}
-		return NULL;
+		else {
+			#pragma omp parallel for 
+			for (int i = 0; i < numNodes; i++) {
+				if(hasVertex(u, i))
+					f(i);
+			}
+			return NULL;
+		}
 	}
 }
 
