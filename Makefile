@@ -48,7 +48,7 @@ $(OBJDIR)/%.o: %.cpp
 $(OBJDIR)/main.o: CycleTimer.h grade.h
 
 cpu_run: cpu
-	./paraGraph bfs ./graph/soc-slashdot_900k.graph; ./paraGraph kbfs ./graph/soc-slashdot_900k.graph; ./paraGraph pagerank ./graph/soc-slashdot_900k.graph;
+	./paraGraph bfs ./graph/com-youtube_3m.graph; ./paraGraph kbfs ./graph/com-youtube_3m.graph; ./paraGraph pagerank ./graph/com-youtube_3m.graph;
 
 cpu_tiny: cpu
 	./paraGraph bfs ./graph/tiny.graph
