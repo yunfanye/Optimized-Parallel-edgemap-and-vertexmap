@@ -58,10 +58,28 @@ void addVertex(VertexSet *set, Vertex v)
 	} 
 	else {
 		// Vertex is typedef'ed as int
-		//__sync_fetch_and_add(&set -> size, 1);
+		__sync_fetch_and_add(&set -> size, 1);
 		set -> vertices[v] = 1;
 	}
 }
+
+void addVertexBatch(VertexSet *set, Vertex v)
+{
+	// thread-safe
+	if(set -> type == SPARSE) {
+		int size = __sync_fetch_and_add(&set -> size, 1);
+		set -> vertices[size] = v;
+	} 
+	else {
+		// Vertex is typedef'ed as int
+		set -> vertices[v] = 1;
+	}
+}
+
+void setSize(VertexSet *set, int size) {
+	set -> size = size;
+}
+
 
 void removeVertex(VertexSet *set, Vertex v)
 {
@@ -103,9 +121,11 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 	int numNodes = old -> numNodes;
 	VertexSet* new_set = newVertexSet(DENSE, size, numNodes);
 	Vertex * vertices = old -> vertices;
+	#pragma omp parallel for
 	for(int i = 0; i < size; i++) {
-		addVertex(new_set, vertices[i]);
+		addVertexBatch(new_set, vertices[i]);
 	}
+	setSize(new_set, size);
 	return new_set;
 }
 
