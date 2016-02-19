@@ -71,6 +71,20 @@ void removeVertex(VertexSet *set, Vertex v)
 	}
 }
 
+void removeVertexAt(VertexSet *set, int index)
+{
+  	// thread safe, only for SPARSE matrix
+  	if(set -> type == SPARSE) {
+  		Vertex* vertices = set -> vertices;
+  		int size = __sync_fetch_and_sub(&set -> size, 1);
+		vertices[index] = vertices[size];
+	}
+	else {
+		// Vertex is typedef'ed as int
+		assert(false);
+	}
+}
+
 /**
  * Returns the union of sets u and v. Destroys u and v.
  */

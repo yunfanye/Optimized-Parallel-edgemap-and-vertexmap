@@ -21,7 +21,7 @@ void freeVertexSet(VertexSet *set);
 
 void addVertex(VertexSet *set, Vertex v);
 void removeVertex(VertexSet *set, Vertex v);
-
+void removeVertexAt(VertexSet *set, int index);
 VertexSet* vertexUnion(VertexSet *u, VertexSet* v);
 
 #endif // __VERTEX_SET__
