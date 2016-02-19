@@ -39,11 +39,10 @@ void freeVertexSet(VertexSet *set)
 
 void addVertex(VertexSet *set, Vertex v)
 {
-	// non thread-safe
+	// thread-safe
 	if(set -> type == SPARSE) {
-		int size = set -> size;
+		int size = __sync_fetch_and_add(&set -> size, 1);
 		set -> vertices[size] = v;
-		set -> size = size + 1;
 	} 
 	else {
 		// Vertex is typedef'ed as int
@@ -53,7 +52,7 @@ void addVertex(VertexSet *set, Vertex v)
 
 void removeVertex(VertexSet *set, Vertex v)
 {
-  	// Assume exactly one match
+  	// non-thread safe, assume exactly one match
   	if(set -> type == SPARSE) {
 		int size = set -> size;
 		int index;

@@ -60,7 +60,6 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		const Vertex* end = outgoing_end(g, vertices[i]);
 		for (const Vertex* k = start; k != end; k++) {
 			if (f.cond(*k) && f.update(vertices[i], *k)) {
-				#pragma omp critical
 				addVertex(ret, *k);
 			}
 		}
@@ -100,7 +99,6 @@ VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 		#pragma omp parallel for 
 		for (int i = 0; i < size; i++) {
 			if (f(vertices[i])) {
-				#pragma omp critical
 				addVertex(ret, vertices[i]);
 			}
 		}
