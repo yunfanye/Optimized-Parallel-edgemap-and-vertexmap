@@ -48,4 +48,4 @@ $(OBJDIR)/%.o: %.cpp
 $(OBJDIR)/main.o: CycleTimer.h grade.h
 
 cpu_run: cpu
-	./paraGraph bfs ./graph/soc-slashdot_900k.graph
+	./paraGraph bfs ./graph/soc-slashdot_900k.graph; ./paraGraph kbfs ./graph/soc-slashdot_900k.graph; ./paraGraph pagerank ./graph/soc-slashdot_900k.graph;
