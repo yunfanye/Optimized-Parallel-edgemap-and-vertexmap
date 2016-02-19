@@ -58,7 +58,7 @@ void addVertex(VertexSet *set, Vertex v)
 	} 
 	else {
 		// Vertex is typedef'ed as int
-		__sync_fetch_and_add(&set -> size, 1);
+		//__sync_fetch_and_add(&set -> size, 1);
 		set -> vertices[v] = 1;
 	}
 }
