@@ -51,14 +51,14 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 	int size = u -> size;
 	int total_num = num_nodes(g);
 	Vertex * vertices = u -> vertices;
-	int capacity = 1000;
-	for (int i = 0; i < size; i++) {
-		int diff = outgoing_size(g, vertices[i]);
-		capacity += diff;
-	}
 	VertexSet* ret;
 	bool need_free = false;
-	if(capacity < total_num / 2) {
+	int capacity = 1000;
+	if(size < total_num / 10) {		
+		for (int i = 0; i < size; i++) {
+			int diff = outgoing_size(g, vertices[i]);
+			capacity += diff;
+		}
 		// ensure u is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
