@@ -18,7 +18,7 @@ typedef struct {
 
 VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes);
 void freeVertexSet(VertexSet *set);
-
+bool hasVertex(VertexSet *set, Vertex v);
 void addVertex(VertexSet *set, Vertex v);
 void removeVertex(VertexSet *set, Vertex v);
 void removeVertexAt(VertexSet *set, int index);

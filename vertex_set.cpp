@@ -37,6 +37,17 @@ void freeVertexSet(VertexSet *set)
 	free(set);
 }
 
+bool hasVertex(VertexSet *set, Vertex v) {
+	// thread safe, only for DENSE matrix
+  	if(set -> type == SPARSE) {
+  		assert(false);
+	}
+	else {
+		// Vertex is typedef'ed as int
+		return set -> vertices[v] == 1;
+	}
+}
+
 void addVertex(VertexSet *set, Vertex v)
 {
 	// thread-safe
@@ -80,7 +91,6 @@ void removeVertexAt(VertexSet *set, int index)
 		vertices[index] = vertices[size];
 	}
 	else {
-		// Vertex is typedef'ed as int
 		assert(false);
 	}
 }
