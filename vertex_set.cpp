@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include "mic.h"
 
+#include <string.h>
+
 /**
  * Creates an empty VertexSet with the given type and capacity.
  * numNodes is the total number of nodes in the graph.
@@ -18,8 +20,14 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 {
 	VertexSet* set = (VertexSet*) malloc(sizeof(VertexSet));
 	set -> size = 0;     // Number of nodes in the set
-  	set -> type = type; 
-  	set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
+	set -> type = type; 
+	if(type == SPARSE) {		
+		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
+	}
+	else {
+		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * numNodes);
+		memset(set -> vertices, 0, sizeof(Vertex) * numNodes);
+	}
   	return set;
 }
 
@@ -32,24 +40,36 @@ void freeVertexSet(VertexSet *set)
 void addVertex(VertexSet *set, Vertex v)
 {
 	// non thread-safe
-	int size = set -> size;
-	set -> vertices[size] = v;
-	set -> size = size + 1;
+	if(set -> type == SPARSE) {
+		int size = set -> size;
+		set -> vertices[size] = v;
+		set -> size = size + 1;
+	} 
+	else {
+		// Vertex is typedef'ed as int
+		set -> vertices[v] = 1;
+	}
 }
 
 void removeVertex(VertexSet *set, Vertex v)
 {
   	// Assume exactly one match
-	int size = set -> size;
-	int index;
-	Vertex* vertices = set -> vertices;
-	#pragma omp parallel for 
-	for(int i = 0; i < size; i++) {
-		if(vertices[i] == v)
-			index = i;
+  	if(set -> type == SPARSE) {
+		int size = set -> size;
+		int index;
+		Vertex* vertices = set -> vertices;
+		#pragma omp parallel for 
+		for(int i = 0; i < size; i++) {
+			if(vertices[i] == v)
+				index = i;
+		}
+		vertices[index] = vertices[size];
+		set -> size = size - 1;
 	}
-	vertices[index] = vertices[size];
-	set -> size = size - 1;
+	else {
+		// Vertex is typedef'ed as int
+		set -> vertices[v] = 0;
+	}
 }
 
 /**

@@ -88,9 +88,9 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 template <class F>
 VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 {
-// 1. apply F to all vertices in U
-//   2. return a new vertex subset containing all vertices u in U
-//      for which F(u) == true
+	// 1. apply F to all vertices in U
+	// 2. return a new vertex subset containing all vertices u in U
+	//      for which F(u) == true
 	if (returnSet) {
 		int numNode = u -> size;
 		VertexSet* ret = newVertexSet(SPARSE, numNode, numNode);
