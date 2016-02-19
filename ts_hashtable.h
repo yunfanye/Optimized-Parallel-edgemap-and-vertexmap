@@ -25,4 +25,6 @@ bool hashtable_has(ts_hashtable * table, hash_data_t data);
 
 void hashtable_free(ts_hashtable * table);
 
+void hashtable_reset(ts_hashtable * table);
+
 #endif

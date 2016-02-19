@@ -64,3 +64,7 @@ void hashtable_free(ts_hashtable * table) {
 	free(table -> nodes);
 	free(table);
 }
+
+void hashtable_reset(ts_hashtable * table) {
+	memset(table -> nodes, 0, sizeof(ts_hashnode_t) * table -> capacity);
+}
