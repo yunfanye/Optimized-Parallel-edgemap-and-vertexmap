@@ -16,23 +16,40 @@
  */
 VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 {
-  // TODO: Implement
-  return NULL;
+	VertexSet* set = (VertexSet*) malloc(sizeof(VertexSet));
+	set -> size = 0;     // Number of nodes in the set
+  	set -> type = type; 
+  	set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
+  	return set;
 }
 
 void freeVertexSet(VertexSet *set)
 {
-  // TODO: Implement
+	free(set -> vertices);
+	free(set);
 }
 
 void addVertex(VertexSet *set, Vertex v)
 {
-  // TODO: Implement
+	// non thread-safe
+	int size = set -> size;
+	set -> vertices[size] = v;
+	set -> size = size + 1;
 }
 
 void removeVertex(VertexSet *set, Vertex v)
 {
-  // TODO: Implement
+  	// Assume exactly one match
+	int size = set -> size;
+	int index;
+	Vertex* vertices = set -> vertices;
+	#pragma omp parallel for 
+	for(int i = 0; i < size; i++) {
+		if(vertices[i] == v)
+			index = i;
+	}
+	vertices[index] = vertices[size];
+	set -> size = size - 1;
 }
 
 /**
