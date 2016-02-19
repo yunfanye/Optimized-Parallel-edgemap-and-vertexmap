@@ -76,7 +76,6 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		}
 	}
 	if(has_conflicts) {
-		printf("has conflicts\n")
 		hashtable_reset(hash_table);
 		VertexSet* no_dup_set = newVertexSet(SPARSE, capacity, num_nodes(g));
 		#pragma omp parallel for
