@@ -54,15 +54,18 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 
 	#pragma omp parallel for 
 	for (int i = 0; i < numNode; i++) {
-		int start = outgoing_begin(g, vertices[i]);
-		int end = outgoing_end(g, vertices[i]);
-		for (int k = start; k != end; k++) {
-			if (f.cond(vertices[i]) && f.update(vertices[i], k)) {
+		const Vertex* start = outgoing_begin(g, vertices[i]);
+		const Vertex* end = outgoing_end(g, vertices[i]);
+		for (const Vertex* k = start; k != end; k++) {
+			if (f.cond(vertices[i]) && f.update(vertices[i], *k)) {
 				#pragma omp critical
 				addVertex(ret, vertices[i]);
 			}
 		}
 	}
+
+	
+
 	return ret;
 }
 
