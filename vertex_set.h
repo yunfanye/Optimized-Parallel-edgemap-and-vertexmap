@@ -5,6 +5,7 @@
 
 typedef enum {
   SPARSE,
+  DENSE
 } VertexSetType;
 
 typedef struct {
