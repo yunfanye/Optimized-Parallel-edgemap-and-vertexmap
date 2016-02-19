@@ -53,9 +53,15 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		int diff = outgoing_size(g, vertices[i]);
 		capacity += diff;
 	}
-	
 	VertexSet* ret;
-	if(u -> type == SPARSE) {
+	bool need_free = false;
+	if(capacity < total_num / 2) {
+		// ensure u is SPARSE
+		if(u -> type != SPARSE) {
+			u = ConvertDenseToSparse(u);
+			vertices = u -> vertices;
+			need_free = true;
+		}
 		// top down approach
 		ret = newVertexSet(SPARSE, capacity, total_num);
 		#pragma omp parallel for 
@@ -94,21 +100,30 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		hashtable_free(hash_table);
 	}
 	else {
+		// ensure u is DENSE
+		if(u -> type != DENSE) {
+			u = ConvertSparseToDense(u);
+			need_free = true;
+		}
 		// buttom up approach
 		ret = newVertexSet(DENSE, capacity, total_num);
-		// Vertex is typedef'ed as int
-		#pragma omp parallel for 
+		// Vertex is typedef'ed as int 
+		#pragma omp parallel for
 		for(Vertex i = 0; i < total_num; i++) {
-			const Vertex* start = outgoing_begin(g, i);
-			const Vertex* end = outgoing_end(g, i);
+			const Vertex* start = incoming_begin(g, i);
+			const Vertex* end = incoming_end(g, i);
 			for (const Vertex* k = start; k != end; k++) {
-				if (hasVertex(u, i) && f.cond(i) && f.update(*k, i)) {
+				if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i)) {
 					addVertex(ret, i);
 					break;
 				}
 			}
 		}
 	}
+
+	if(need_free)
+		freeVertexSet(u);
+
 	return ret;
 }
 

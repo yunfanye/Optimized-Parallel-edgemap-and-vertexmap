@@ -21,6 +21,7 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 	VertexSet* set = (VertexSet*) malloc(sizeof(VertexSet));
 	set -> size = 0;     // Number of nodes in the set
 	set -> type = type; 
+	set -> numNodes = numNodes;
 	if(type == SPARSE) {		
 		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
 	}
@@ -57,6 +58,7 @@ void addVertex(VertexSet *set, Vertex v)
 	} 
 	else {
 		// Vertex is typedef'ed as int
+		__sync_fetch_and_add(&set -> size, 1);
 		set -> vertices[v] = 1;
 	}
 }
@@ -73,11 +75,12 @@ void removeVertex(VertexSet *set, Vertex v)
 			if(vertices[i] == v)
 				index = i;
 		}
-		vertices[index] = vertices[size];
+		vertices[index] = vertices[size - 1];
 		set -> size = size - 1;
 	}
 	else {
 		// Vertex is typedef'ed as int
+		__sync_fetch_and_sub(&set -> size, 1);
 		set -> vertices[v] = 0;
 	}
 }
@@ -95,6 +98,29 @@ void removeVertexAt(VertexSet *set, int index)
 	}
 }
 
+VertexSet* ConvertSparseToDense(VertexSet* old) {
+	int size = old -> size;
+	int numNodes = old -> numNodes;
+	VertexSet* new_set = newVertexSet(DENSE, size, numNodes);
+	Vertex * vertices = old -> vertices;
+	for(int i = 0; i < size; i++) {
+		addVertex(new_set, vertices[i]);
+	}
+	return new_set;
+}
+
+VertexSet* ConvertDenseToSparse(VertexSet* old) {
+	int size = old -> size;
+	int numNodes = old -> numNodes;
+	VertexSet* new_set = newVertexSet(SPARSE, size, numNodes);
+	#pragma omp parallel for 
+	for (int i = 0; i < numNodes; ++i) {
+		if(hasVertex(old, i))
+			addVertex(new_set, i);
+	}
+	return new_set;
+}
+
 /**
  * Returns the union of sets u and v. Destroys u and v.
  */
@@ -107,4 +133,5 @@ VertexSet* vertexUnion(VertexSet *u, VertexSet* v)
 
   return NULL;
 }
+
 

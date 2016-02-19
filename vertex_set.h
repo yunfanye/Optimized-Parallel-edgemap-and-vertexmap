@@ -10,7 +10,6 @@ typedef enum {
 
 typedef struct {
   int size;     // Number of nodes in the set
-  int capacity; // Maximum nodes can hold currently
   int numNodes; // Number of nodes in the graph
   VertexSetType type; 
   Vertex* vertices;
@@ -23,5 +22,8 @@ void addVertex(VertexSet *set, Vertex v);
 void removeVertex(VertexSet *set, Vertex v);
 void removeVertexAt(VertexSet *set, int index);
 VertexSet* vertexUnion(VertexSet *u, VertexSet* v);
+
+VertexSet* ConvertSparseToDense(VertexSet* old);
+VertexSet* ConvertDenseToSparse(VertexSet* old);
 
 #endif // __VERTEX_SET__
