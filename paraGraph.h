@@ -14,6 +14,8 @@
 
 #include <time.h>
 
+#define CACHE_LINE_SIZE 16
+
 /*
  * edgeMap --
  * 
@@ -90,19 +92,35 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		}
 		// buttom up approach
 		ret = newVertexSet(DENSE, capacity, total_num);
+		int count = 0;
+
+		int max_thread_num = omp_get_max_threads();
+		int local_count_size = sizeof(int) * CACHE_LINE_SIZE * max_thread_num;
+		int * local_counts = (int *)malloc(local_count_size);
+		memset(local_counts, 0, local_count_size);
 		// Vertex is typedef'ed as int 
-		#pragma omp parallel for
-		for(Vertex i = 0; i < total_num; i++) {
-			const Vertex* start = incoming_begin(g, i);
-			const Vertex* end = incoming_end(g, i);
-			bool hasAdded = false;
-			for (const Vertex* k = start; k != end; k++) {
-				if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i) && !hasAdded) {
-					hasAdded = true;
-					addVertex(ret, i);
+		#pragma omp parallel
+		{
+			int tid = omp_get_thread_num() * CACHE_LINE_SIZE;
+			#pragma omp parallel for
+			for(Vertex i = 0; i < total_num; i++) {
+				const Vertex* start = incoming_begin(g, i);
+				const Vertex* end = incoming_end(g, i);
+				bool hasAdded = false;
+				for (const Vertex* k = start; k != end; k++) {
+					if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i) && !hasAdded) {
+						local_counts[tid]++;
+						hasAdded = true;
+						addVertexBatch(ret, i);
+					}
 				}
 			}
 		}
+	 	for(int i = 0; i < max_thread_num * CACHE_LINE_SIZE; i+=CACHE_LINE_SIZE) {
+	 		count += local_counts[i];
+	 	}
+	 	free(local_counts);
+	 	setSize(ret, count);	
 	}
 	if(need_free)
 		freeVertexSet(u);
