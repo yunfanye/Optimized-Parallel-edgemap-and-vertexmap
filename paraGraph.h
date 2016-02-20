@@ -103,13 +103,15 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 				if (f.cond(i)) {
 					for (const Vertex* k = start; k != end; k++) {
 						if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i)) {
-							addVertex(ret, i);
+							addVertexBatch(ret, i);
 							total_size += 1;
 						}
 					}
 				}
 			}
 		}
+		ret -> size = total_size;
+		// setSize(ret, total_size);
 	}
 	if(need_free)
 		freeVertexSet(u);
@@ -166,13 +168,20 @@ VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 	}
 	else {
 		if (returnSet) {
+			int total_size = 0;
 			VertexSet* ret = newVertexSet(DENSE, size, numNodes);		
-			#pragma omp parallel for 
-			for (int i = 0; i < numNodes; i++) {
-				if (hasVertex(u, i) && f(i)) {
-					addVertex(ret, i);
+			#pragma omp parallel
+			{
+				#pragma omp for reduction(+:total_size)
+				for (int i = 0; i < numNodes; i++) {
+					if (hasVertex(u, i) && f(i)) {
+						addVertexBatch(ret, i);
+						total_size += 1;
+					}
 				}
 			}
+			ret -> size = total_size;
+			
 			return ret;
 		}
 		else {
