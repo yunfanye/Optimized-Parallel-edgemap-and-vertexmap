@@ -47,6 +47,7 @@ bool hasVertex(VertexSet *set, Vertex v) {
 	}
 	else {
 		// Vertex is typedef'ed as int
+		#pragma vector nontemporal(set -> map)
 		return set -> map[v];
 	}
 }

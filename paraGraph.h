@@ -94,9 +94,9 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		ret = newVertexSet(DENSE, capacity, total_num);
 		// Vertex is typedef'ed as int 
 		int total_size;
-		#pragma omp parallel
+		#pragma omp parallel 
 		{
-			#pragma omp for reduction(+:total_size)
+			#pragma omp for schedule(static) reduction(+:total_size)
 			for(Vertex i = 0; i < total_num; i++) {
 				const Vertex* start = incoming_begin(g, i);
 				const Vertex* end = incoming_end(g, i);
