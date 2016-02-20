@@ -218,7 +218,7 @@ int main(int argc, char** argv)
     /* kBFS */
     timingApp(timing, "kBFS");
     possiblePoints += MAX_POINTS;
-    points += TIME_MIC(kBFS_ref, kBFS, int)
+    points += TIME_MIC(kBFS_ref, kBFS_ref, int)
       (timing, arguments.device, numTrials, min_threads, max_threads,
       compareArraysAndRadiiEst<int>, graph);
   }

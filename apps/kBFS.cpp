@@ -145,22 +145,25 @@ void kBFS(graph *g, int *distField) {
 
   // initialize the frontier with K random nodes
   srand(0);
-  int S[K]; // the set of source nodes
-  for (int i = 0; i < K; i++) 
+  int numSources = std::min(K, g->num_nodes);
+  int S[numSources]; // the set of source nodes
+  for (int i = 0; i < numSources; i++) 
     S[i] = (std::rand()/(float)RAND_MAX) * g->num_nodes;
 
-  VertexSet* frontier = newVertexSet(SPARSE, K, g->num_nodes);
-  for (int i = 0; i < K; i++) {
+  VertexSet* frontier = newVertexSet(SPARSE, numSources, g->num_nodes);
+  for (int i = 0; i < numSources; i++) {
     addVertex(frontier, S[i]);
   }
 
   // iterate over values 1 thru k to do initialization
-  VertexSet* ks = newVertexSet(SPARSE, K, g->num_nodes);
-  for (int i = 0; i < K; i++) 
+  VertexSet* ks = newVertexSet(SPARSE, numSources, g->num_nodes);
+  for (int i = 0; i < numSources; i++) 
     addVertex(ks, i);
 
   Init i(S, visited, nextVisited, radii);
   vertexMap(ks, i, NORETURN);
+
+  freeVertexSet(ks);
 
   VertexSet *newFrontier;
 
