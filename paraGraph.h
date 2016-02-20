@@ -67,38 +67,18 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		}
 		// top down approach
 		ret = newVertexSet(SPARSE, capacity, total_num);
+		ts_hashtable * hash_table = new_hashtable(capacity | 1); //odd number capacity
+
 		#pragma omp parallel for 
 		for (int i = 0; i < size; i++) {
 			const Vertex* start = outgoing_begin(g, vertices[i]);
 			const Vertex* end = outgoing_end(g, vertices[i]);
 			for (const Vertex* k = start; k != end; k++) {
-				if (f.cond(*k) && f.update(vertices[i], *k)) {
+				if (f.cond(*k) && f.update(vertices[i], *k) && 
+					hashtable_set(hash_table, *k)) {
 					addVertex(ret, *k);
 				}
 			}
-		}
-		// remove duplicates, optimized for no dup case
-		int count = ret -> size;
-		Vertex * ret_vertices = ret -> vertices;
-		ts_hashtable * hash_table = new_hashtable(count | 1); //odd number capacity
-		bool has_conflicts = false;
-		#pragma omp parallel for
-		for (int i = 0; i < count; i++) {
-			if(hashtable_set(hash_table, ret_vertices[i])) {
-				has_conflicts = true;
-			}
-		}
-		if(has_conflicts) {
-			hashtable_reset(hash_table);
-			VertexSet* no_dup_set = newVertexSet(SPARSE, capacity, total_num);
-			#pragma omp parallel for
-			for (int i = 0; i < count; i++) {
-				if(!hashtable_set(hash_table, ret_vertices[i])) {
-					addVertex(no_dup_set, ret_vertices[i]);
-				}
-			}
-			freeVertexSet(ret);
-			ret = no_dup_set;
 		}
 		hashtable_free(hash_table);
 	}
