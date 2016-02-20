@@ -93,7 +93,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 		// buttom up approach
 		ret = newVertexSet(DENSE, capacity, total_num);
 		// Vertex is typedef'ed as int 
-		#pragma omp parallel for
+		#pragma omp parallel for schedule(static)
 		for(Vertex i = 0; i < total_num; i++) {
 			if(f.cond(i)) {
 				const Vertex* start = incoming_begin(g, i);
