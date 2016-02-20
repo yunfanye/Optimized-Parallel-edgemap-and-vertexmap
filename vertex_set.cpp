@@ -61,6 +61,7 @@ void addVertex(VertexSet *set, Vertex v)
 	else {
 		// Vertex is typedef'ed as int
 		__sync_fetch_and_add(&set -> size, 1);
+		#pragma vector nontemporal(set -> map)
 		set -> map[v] = true;
 	}
 }
@@ -74,6 +75,7 @@ void addVertexBatch(VertexSet *set, Vertex v)
 	} 
 	else {
 		// Vertex is typedef'ed as int
+		#pragma vector nontemporal(set -> map)
 		set -> map[v] = true;
 	}
 }
