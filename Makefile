@@ -47,7 +47,7 @@ $(OBJDIR)/%.o: %.cpp
 
 $(OBJDIR)/main.o: CycleTimer.h grade.h
 
-cpu_run: cpu
+cpu_run_ghc: cpu
 	./paraGraph bfs /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph; ./paraGraph kbfs /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph; ./paraGraph pagerank /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph;
 
 cpu_tiny: cpu
