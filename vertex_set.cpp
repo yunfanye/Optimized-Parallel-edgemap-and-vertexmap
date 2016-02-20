@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include "mic.h"
 
-#include <string.h>
 
 /**
  * Creates an empty VertexSet with the given type and capacity.
@@ -26,15 +25,18 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
 	}
 	else {
-		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * numNodes);
-		memset(set -> vertices, 0, sizeof(Vertex) * numNodes);
+		set -> map = (bool*) malloc(sizeof(bool) * numNodes);
+		memset(set -> map, 0, sizeof(bool) * numNodes);
 	}
   	return set;
 }
 
 void freeVertexSet(VertexSet *set)
 {
-	free(set -> vertices);
+	if(set -> type == SPARSE)
+		free(set -> vertices);
+	else
+		free(set -> map);
 	free(set);
 }
 
@@ -45,7 +47,7 @@ bool hasVertex(VertexSet *set, Vertex v) {
 	}
 	else {
 		// Vertex is typedef'ed as int
-		return set -> vertices[v] == 1;
+		return set -> map[v];
 	}
 }
 
@@ -59,7 +61,7 @@ void addVertex(VertexSet *set, Vertex v)
 	else {
 		// Vertex is typedef'ed as int
 		__sync_fetch_and_add(&set -> size, 1);
-		set -> vertices[v] = 1;
+		set -> map[v] = true;
 	}
 }
 
@@ -72,11 +74,11 @@ void addVertexBatch(VertexSet *set, Vertex v)
 	} 
 	else {
 		// Vertex is typedef'ed as int
-		set -> vertices[v] = 1;
+		set -> map[v] = true;
 	}
 }
 
-void setSize(VertexSet *set, int size) {
+inline void setSize(VertexSet *set, int size) {
 	set -> size = size;
 }
 
@@ -99,7 +101,7 @@ void removeVertex(VertexSet *set, Vertex v)
 	else {
 		// Vertex is typedef'ed as int
 		__sync_fetch_and_sub(&set -> size, 1);
-		set -> vertices[v] = 0;
+		set -> map[v] = false;
 	}
 }
 
