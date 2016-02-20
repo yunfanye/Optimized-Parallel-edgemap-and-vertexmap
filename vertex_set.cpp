@@ -80,11 +80,6 @@ void addVertexBatch(VertexSet *set, Vertex v)
 	}
 }
 
-inline void setSize(VertexSet *set, int size) {
-	set -> size = size;
-}
-
-
 void removeVertex(VertexSet *set, Vertex v)
 {
   	// non-thread safe, assume exactly one match

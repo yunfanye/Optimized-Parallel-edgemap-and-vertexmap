@@ -102,7 +102,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 				const Vertex* end = incoming_end(g, i);
 				if (f.cond(i)) {
 					for (const Vertex* k = start; k != end; k++) {
-						if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i)) {
+						if (hasVertex(u, *k) && f.update(*k, i)) {
 							addVertexBatch(ret, i);
 							total_size += 1;
 						}
@@ -110,8 +110,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 				}
 			}
 		}
-		ret -> size = total_size;
-		// setSize(ret, total_size);
+		setSize(ret, total_size);
 	}
 	if(need_free)
 		freeVertexSet(u);
