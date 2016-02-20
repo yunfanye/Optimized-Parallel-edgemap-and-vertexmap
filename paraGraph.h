@@ -57,15 +57,15 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 	bool need_free = false;
 	int capacity = 10;
 	if(size < total_num / 5) {		
-		for (int i = 0; i < size; i++) {
-			int diff = outgoing_size(g, vertices[i]);
-			capacity += diff;
-		}
 		// ensure u is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
 			vertices = u -> vertices;
 			need_free = true;
+		}
+		for (int i = 0; i < size; i++) {
+			int diff = outgoing_size(g, vertices[i]);
+			capacity += diff;
 		}
 		// top down approach
 		ret = newVertexSet(SPARSE, capacity, total_num);
