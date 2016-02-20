@@ -75,7 +75,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 			const Vertex* end = outgoing_end(g, vertices[i]);
 			for (const Vertex* k = start; k != end; k++) {
 				if (f.cond(*k) && f.update(vertices[i], *k) && 
-					hashtable_set(hash_table, *k)) {
+					!hashtable_set(hash_table, *k)) {
 					addVertex(ret, *k);
 				}
 			}
