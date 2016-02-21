@@ -17,9 +17,6 @@
 #include "graph.h"
 #include "graph_internal.h"
 
-#define MAX_POINTS 4.5
-
-
 void visualize_results_grid(int* results, int dim);
 
 static void sep(std::ostream& out, char separator = '-', int length = 78)
@@ -59,6 +56,7 @@ double timeMic
   ( std::stringstream& timing
   , int device
   , int numTrials
+  , double maxPoints
   , int minThreadCount
   , int maxThreadCount 
   , bool (*check)(Graph g, T* refSolution, T* stuSolution)
@@ -238,7 +236,7 @@ double timeMic
   /* Print and return grade */
   double fraction = stuBestTime / refBestTime * 100.0;
   double curve = 4.0 / 3.0 * (refBestTime / stuBestTime) - (1.0 / 3.0);
-  double points = std::min(MAX_POINTS, std::max(MAX_POINTS * curve, 0.0));
+  double points = std::min(maxPoints, std::max(maxPoints * curve, 0.0));
   points = (correct) ? points : 0.0;
 
   sep(timing, '-', 75);

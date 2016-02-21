@@ -225,33 +225,33 @@ int main(int argc, char** argv)
   if (arguments.app == BFS || arguments.app == GRADE) {
     /* BFS */
     timingApp(timing, "BFS");
-    possiblePoints += MAX_POINTS;
+    possiblePoints += 4.5;
     points += TIME_MIC(bfs_ref, bfs, int)
-      (timing, arguments.device, numTrials, min_threads, max_threads,
+      (timing, arguments.device, numTrials, 4.5, min_threads, max_threads,
       compareArrays<int>, graph);
   }
   if (arguments.app == PAGERANK || arguments.app == GRADE) {
     /* PageRank */
     timingApp(timing, "PageRank");
-    possiblePoints += MAX_POINTS;
+    possiblePoints += 4.5;
     points += TIME_MIC(pageRankRefWrapper, pageRankWrapper, float)
-      (timing, arguments.device, numTrials, min_threads, max_threads,
+      (timing, arguments.device, numTrials, 4.5, min_threads, max_threads,
       compareApprox<float>, graph);
   }
   if (arguments.app == KBFS || arguments.app == GRADE) {
     /* kBFS */
     timingApp(timing, "kBFS");
-    possiblePoints += MAX_POINTS;
+    possiblePoints += 4.5;
     points += TIME_MIC(kBFS_ref, kBFS, int)
-      (timing, arguments.device, numTrials, min_threads, max_threads,
+      (timing, arguments.device, numTrials, 4.5, min_threads, max_threads,
       compareArraysAndRadiiEst<int>, graph);
   }
   if (arguments.app == DECOMP || arguments.app == GRADE) {
     /* GraphDecomposition */
     timingApp(timing, "Graph Decomposition");
-    possiblePoints += MAX_POINTS;
-    TIME_MIC(graphDecompRefWrapper, graphDecompWrapper, int)
-      (timing, arguments.device, numTrials, min_threads, max_threads,
+    possiblePoints += 5;
+    points += TIME_MIC(graphDecompRefWrapper, graphDecompWrapper, int)
+      (timing, arguments.device, numTrials, 5, min_threads, max_threads,
       compareArraysAndDisplay<int>, graph);
   }
 
