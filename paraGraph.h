@@ -55,9 +55,9 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
 	Vertex * vertices = u -> vertices;
 	VertexSet* ret;
 	bool need_free = false;
-	int capacity = 10;
-	if(size < total_num / 5) {		
-		// ensure u is SPARSE
+	int capacity = 1000;
+	if(size < total_num / 3) {		
+		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
 			vertices = u -> vertices;
