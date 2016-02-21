@@ -39,7 +39,8 @@
  * generation as these methods will be inlined.
  */
 template <class F>
-VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
+static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
+    bool removeDuplicates=true)
 {
   // outputSubset = {}
 
@@ -139,7 +140,7 @@ VertexSet *edgeMap(Graph g, VertexSet *u, F &f, bool removeDuplicates=true)
  * return NULL (it need not build and create a vertex set)
  */
 template <class F>
-VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
+static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 {
 	// 1. apply F to all vertices in U
 	// 2. return a new vertex subset containing all vertices u in U

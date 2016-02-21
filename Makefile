@@ -58,3 +58,7 @@ cpu_run_soc: cpu
 
 cpu_tiny: cpu
 	./paraGraph bfs ./graph/tiny.graph
+
+handin:
+	tar -cf handin.tar writeup.pdf paraGraph.h vertex_set.h vertex_set.cpp apps/*.cpp
+
