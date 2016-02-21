@@ -63,8 +63,22 @@ bool compareApprox(Graph graph, T* ref, T* stu)
 template <class T>
 bool compareArraysAndDisplay(Graph graph, T* ref, T*stu) 
 {
-  printf("Visualization of results\n");
+  printf("\n----------------------------------\n");
+  printf("Visualization of student results");
+  printf("\n----------------------------------\n\n");
+
   int grid_dim = (int)sqrt(graph->num_nodes);
+  for (int j=0; j<grid_dim; j++) {
+    for (int i=0; i<grid_dim; i++) {
+      printf("%02d ", stu[j*grid_dim + i]);
+    }
+    printf("\n");
+  }
+  printf("\n----------------------------------\n");
+  printf("Visualization of reference results");
+  printf("\n----------------------------------\n\n");
+
+  grid_dim = (int)sqrt(graph->num_nodes);
   for (int j=0; j<grid_dim; j++) {
     for (int i=0; i<grid_dim; i++) {
       printf("%02d ", ref[j*grid_dim + i]);
@@ -120,7 +134,12 @@ void pageRankWrapper(Graph g, float* solution)
 
 void graphDecompWrapper(Graph g, int* solution) 
 {
-  decompose(g, solution, DecompBeta); 
+  int maxVal;
+  int maxId;
+  int* dus = getDus(g->num_nodes, DecompBeta, &maxVal, &maxId);
+
+  decompose(g, solution, dus, maxVal, maxId);
+  free(dus);
 }
 
 void pageRankRefWrapper (Graph g, float* solution)
@@ -131,7 +150,12 @@ void pageRankRefWrapper (Graph g, float* solution)
 // returns for every node, the cluster id it belongs to 
 void graphDecompRefWrapper(Graph g, int* solution) 
 {
-  decompose_ref(g, solution, DecompBeta); 
+  int maxVal;
+  int maxId;
+  int* dus = getDus_ref(g->num_nodes, DecompBeta, &maxVal, &maxId);
+
+  decompose_ref(g, solution, dus, maxVal, maxId);
+  free(dus);
 }
 
 void timingApp(std::ostream& timing, const char* appName)
