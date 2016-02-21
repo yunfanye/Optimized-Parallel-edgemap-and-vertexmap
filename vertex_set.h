@@ -23,7 +23,11 @@ void addVertex(VertexSet *set, Vertex v);
 void addVertexBatch(VertexSet *set, Vertex v);
 void removeVertex(VertexSet *set, Vertex v);
 void removeVertexAt(VertexSet *set, int index);
-void setSize(VertexSet *set, int size);
+
+inline void setSize(VertexSet *set, int size) {
+	set -> size = size;
+}
+
 VertexSet* vertexUnion(VertexSet *u, VertexSet* v);
 
 VertexSet* ConvertSparseToDense(VertexSet* old);

@@ -95,15 +95,15 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		ret = newVertexSet(DENSE, capacity, total_num);
 		// Vertex is typedef'ed as int 
 		int total_size;
-		#pragma omp parallel
+		#pragma omp parallel 
 		{
-			#pragma omp for reduction(+:total_size)
+			#pragma omp for schedule(static) reduction(+:total_size)
 			for(Vertex i = 0; i < total_num; i++) {
 				const Vertex* start = incoming_begin(g, i);
 				const Vertex* end = incoming_end(g, i);
 				if (f.cond(i)) {
 					for (const Vertex* k = start; k != end; k++) {
-						if (hasVertex(u, *k) && f.cond(i) && f.update(*k, i)) {
+						if (hasVertex(u, *k) && f.update(*k, i)) {
 							addVertexBatch(ret, i);
 							total_size += 1;
 						}
@@ -111,8 +111,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 				}
 			}
 		}
-		ret -> size = total_size;
-		// setSize(ret, total_size);
+		setSize(ret, total_size);
 	}
 	if(need_free)
 		freeVertexSet(u);

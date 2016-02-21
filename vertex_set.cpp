@@ -47,6 +47,7 @@ bool hasVertex(VertexSet *set, Vertex v) {
 	}
 	else {
 		// Vertex is typedef'ed as int
+		#pragma vector nontemporal(set -> map)
 		return set -> map[v];
 	}
 }
@@ -79,11 +80,6 @@ void addVertexBatch(VertexSet *set, Vertex v)
 		set -> map[v] = true;
 	}
 }
-
-inline void setSize(VertexSet *set, int size) {
-	set -> size = size;
-}
-
 
 void removeVertex(VertexSet *set, Vertex v)
 {

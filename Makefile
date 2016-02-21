@@ -53,6 +53,9 @@ cpu_run: cpu
 cpu_run_ghc: cpu
 	./paraGraph bfs /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph; ./paraGraph kbfs /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph; ./paraGraph pagerank /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph;
 
+cpu_run_pr: cpu
+	./paraGraph pagerank /afs/cs/academic/class/15418-s16/public/asst3_graphs/soc-livejournal1_68m.graph;
+
 cpu_run_soc: cpu
 	./paraGraph bfs ./graph/soc-slashdot_900k.graph; ./paraGraph kbfs ./graph/soc-slashdot_900k.graph; ./paraGraph pagerank ./graph/soc-slashdot_900k.graph;
 
