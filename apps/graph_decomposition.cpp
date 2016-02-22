@@ -75,8 +75,7 @@ class UpdateFrontier
       max_dus(max_dus), iter(iter), dus(dus) {};
 
     bool operator()(Vertex v) {
-      if (iter > max_dus - dus[v])
-      	return true;
+      	return (iter > max_dus - dus[v]);
     }
 };
 
