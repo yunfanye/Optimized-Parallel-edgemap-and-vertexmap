@@ -100,9 +100,11 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
   State<float> s(g, damping, convergence);
 
   VertexSet* frontier = newVertexSet(DENSE, numNodes, numNodes);
+  #pragma omp parallel for
   for (int i = 0; i < numNodes; i++) {
-    addVertex(frontier, i);
+    addVertexBatch(frontier, i);
   }
+  setSize(frontier, numNodes);
 
   float error = INFINITY;
   while (error > convergence) {

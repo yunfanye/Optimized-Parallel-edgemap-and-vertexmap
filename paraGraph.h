@@ -54,7 +54,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 	VertexSet* ret;
 	bool need_free = false;
 	int capacity = 10;
-	if(size < total_num / 5) {	
+	if(size < total_num / 20) {	
 		Vertex * vertices = u -> vertices;	
 		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
@@ -68,8 +68,9 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		}
 		// top down approach
 		ret = newVertexSet(SPARSE, capacity, total_num);
-		ts_hashtable * hash_table = new_hashtable(capacity | 1); //odd number capacity
-
+		ts_hashtable * hash_table;
+		if(removeDuplicates)
+			hash_table = new_hashtable(capacity | 1); //odd number capacity
 		#pragma omp parallel for 
 		for (int i = 0; i < size; i++) {
 			const Vertex* start = outgoing_begin(g, vertices[i]);
@@ -81,7 +82,8 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 				}
 			}
 		}
-		hashtable_free(hash_table);
+		if(removeDuplicates)
+			hashtable_free(hash_table);
 	}
 	else {
 		// ensure u is DENSE
@@ -90,7 +92,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 			need_free = true;
 		}
 		// buttom up approach
-		ret = newVertexSet(DENSE, capacity, total_num);
+		ret = newVertexSet(DENSE, size, total_num);
 		// Vertex is typedef'ed as int 
 		int total_size = 0;
 		#pragma omp parallel 
@@ -172,7 +174,7 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 			VertexSet* ret = newVertexSet(DENSE, size, numNodes);		
 			#pragma omp parallel
 			{
-				#pragma omp for reduction(+:total_size)
+				#pragma omp for schedule(static) reduction(+:total_size)
 				for (int i = 0; i < numNodes; i++) {
 					if (hasVertex(u, i) && f(i)) {
 						addVertexBatch(ret, i);
@@ -180,8 +182,7 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 					}
 				}
 			}
-			ret -> size = total_size;
-			
+			setSize(ret, total_size);			
 			return ret;
 		}
 		else {
