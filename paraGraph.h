@@ -14,8 +14,6 @@
 
 #include <time.h>
 
-#define CACHE_LINE_SIZE 16
-
 /*
  * edgeMap --
  * 
@@ -52,12 +50,12 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
   // remove_duplicates(outputSubset)
   // return outputSubset
 	int size = u -> size;
-	int total_num = num_nodes(g);
-	Vertex * vertices = u -> vertices;
+	int total_num = num_nodes(g);	
 	VertexSet* ret;
 	bool need_free = false;
-	int capacity = 1000;
-	if(size < total_num / 3) {		
+	int capacity = 10;
+	if(size < total_num / 5) {	
+		Vertex * vertices = u -> vertices;	
 		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
@@ -99,11 +97,13 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		{
 			#pragma omp for schedule(static) reduction(+:total_size)
 			for(Vertex i = 0; i < total_num; i++) {
-				const Vertex* start = incoming_begin(g, i);
-				const Vertex* end = incoming_end(g, i);
 				if (f.cond(i)) {
+					const Vertex* start = incoming_begin(g, i);
+					const Vertex* end = incoming_end(g, i);
+					bool hasAdded = false;
 					for (const Vertex* k = start; k != end; k++) {
-						if (hasVertex(u, *k) && f.update(*k, i)) {
+						if (hasVertex(u, *k) && f.update(*k, i) && !hasAdded) {
+							hasAdded = true;
 							addVertexBatch(ret, i);
 							total_size += 1;
 						}
