@@ -112,7 +112,7 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 		new_set -> map[i] = false;
 	}
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(static)
 	for(int i = 0; i < size; i++) {
 		DenseSetMapValue(new_set, vertices[i], true);
 	}
