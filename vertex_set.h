@@ -20,7 +20,9 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes);
 void freeVertexSet(VertexSet *set);
 bool hasVertex(VertexSet *set, Vertex v);
 void addVertex(VertexSet *set, Vertex v);
-void addVertexBatch(VertexSet *set, Vertex v);
+inline void DenseSetMapValue(VertexSet* set, Vertex v, bool value) {
+	set -> map[v] = value;
+}
 void removeVertex(VertexSet *set, Vertex v);
 void removeVertexAt(VertexSet *set, int index);
 

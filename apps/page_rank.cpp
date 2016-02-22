@@ -38,7 +38,6 @@ struct State
   bool update(Vertex s, Vertex d)
   {
     float add = pcurr[s] / outgoing_size(graph, s);
-    #pragma omp atomic
     pnext[d] += add;
     return true;
   }
@@ -102,7 +101,7 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
   VertexSet* frontier = newVertexSet(DENSE, numNodes, numNodes);
   #pragma omp parallel for
   for (int i = 0; i < numNodes; i++) {
-    addVertexBatch(frontier, i);
+    DenseSetMapValue(frontier, i, true);
   }
   setSize(frontier, numNodes);
 

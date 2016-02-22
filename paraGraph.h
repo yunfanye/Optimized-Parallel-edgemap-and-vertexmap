@@ -99,18 +99,18 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		{
 			#pragma omp for schedule(static) reduction(+:total_size)
 			for(Vertex i = 0; i < total_num; i++) {
+				bool hasAdded = false;
 				if (f.cond(i)) {
 					const Vertex* start = incoming_begin(g, i);
-					const Vertex* end = incoming_end(g, i);
-					bool hasAdded = false;
+					const Vertex* end = incoming_end(g, i);					
 					for (const Vertex* k = start; k != end; k++) {
 						if (hasVertex(u, *k) && f.update(*k, i) && !hasAdded) {
 							hasAdded = true;
-							addVertexBatch(ret, i);
 							total_size += 1;
 						}
 					}
 				}
+				DenseSetMapValue(ret, i, hasAdded);
 			}
 		}
 		setSize(ret, total_size);
@@ -176,10 +176,12 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 			{
 				#pragma omp for schedule(static) reduction(+:total_size)
 				for (int i = 0; i < numNodes; i++) {
+					bool hasAdded = false;
 					if (hasVertex(u, i) && f(i)) {
-						addVertexBatch(ret, i);
+						hasAdded = true;
 						total_size += 1;
 					}
+					DenseSetMapValue(ret, i, hasAdded);
 				}
 			}
 			setSize(ret, total_size);			

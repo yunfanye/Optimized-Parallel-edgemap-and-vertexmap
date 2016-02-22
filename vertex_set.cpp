@@ -26,7 +26,6 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 	}
 	else {
 		set -> map = (bool*) malloc(sizeof(bool) * numNodes);
-		memset(set -> map, 0, sizeof(bool) * numNodes);
 	}
   	return set;
 }
@@ -62,20 +61,6 @@ void addVertex(VertexSet *set, Vertex v)
 	else {
 		// Vertex is typedef'ed as int
 		__sync_fetch_and_add(&set -> size, 1);
-		#pragma vector nontemporal(set -> map)
-		set -> map[v] = true;
-	}
-}
-
-void addVertexBatch(VertexSet *set, Vertex v)
-{
-	// thread-safe
-	if(set -> type == SPARSE) {
-		int size = __sync_fetch_and_add(&set -> size, 1);
-		set -> vertices[size] = v;
-	} 
-	else {
-		// Vertex is typedef'ed as int
 		#pragma vector nontemporal(set -> map)
 		set -> map[v] = true;
 	}
@@ -121,9 +106,15 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 	int numNodes = old -> numNodes;
 	VertexSet* new_set = newVertexSet(DENSE, size, numNodes);
 	Vertex * vertices = old -> vertices;
+
+	#pragma omp parallel for schedule(static)
+	for(int i = 0; i < numNodes; i++) {
+		new_set -> map[i] = false;
+	}
+
 	#pragma omp parallel for
 	for(int i = 0; i < size; i++) {
-		addVertexBatch(new_set, vertices[i]);
+		DenseSetMapValue(new_set, vertices[i], true);
 	}
 	setSize(new_set, size);
 	return new_set;

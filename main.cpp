@@ -252,7 +252,7 @@ int main(int argc, char** argv)
     possiblePoints += 5;
     points += TIME_MIC(graphDecompRefWrapper, graphDecompWrapper, int)
       (timing, arguments.device, numTrials, 5, min_threads, max_threads,
-      compareArraysAndDisplay<int>, graph);
+      compareArrays<int>, graph);
   }
 
   std::cout << std::endl << std::endl;
