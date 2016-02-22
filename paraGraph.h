@@ -92,7 +92,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		// buttom up approach
 		ret = newVertexSet(DENSE, capacity, total_num);
 		// Vertex is typedef'ed as int 
-		int total_size;
+		int total_size = 0;
 		#pragma omp parallel 
 		{
 			#pragma omp for schedule(static) reduction(+:total_size)
