@@ -13,6 +13,7 @@
 #include "ts_hashtable.h"
 
 #include <time.h>
+#include <immintrin.h>
 
 /*
  * edgeMap --
@@ -95,23 +96,21 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		ret = newVertexSet(DENSE, size, total_num);
 		// Vertex is typedef'ed as int 
 		int total_size = 0;
-		#pragma omp parallel 
-		{
-			#pragma omp for schedule(static) reduction(+:total_size)
-			for(Vertex i = 0; i < total_num; i++) {
-				bool hasAdded = false;
-				if (f.cond(i)) {
-					const Vertex* start = incoming_begin(g, i);
-					const Vertex* end = incoming_end(g, i);					
-					for (const Vertex* k = start; k != end; k++) {
-						if (hasVertex(u, *k) && f.update(*k, i) && !hasAdded) {
-							hasAdded = true;
-							total_size += 1;
-						}
+		#pragma omp parallel for schedule(static) reduction(+:total_size)
+		for(Vertex i = 0; i < total_num; i++) {
+			bool hasAdded = false;
+
+			if (f.cond(i)) {
+				const Vertex* start = incoming_begin(g, i);
+				const Vertex* end = incoming_end(g, i);					
+				for (const Vertex* k = start; k != end; k++) {
+					if (hasVertex(u, *k) && f.update(*k, i) && !hasAdded) {
+						hasAdded = true;
+						total_size += 1;
 					}
 				}
-				DenseSetMapValue(ret, i, hasAdded);
 			}
+			DenseSetMapValue(ret, i, hasAdded);
 		}
 		setSize(ret, total_size);
 	}
@@ -172,23 +171,20 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 		if (returnSet) {
 			int total_size = 0;
 			VertexSet* ret = newVertexSet(DENSE, size, numNodes);		
-			#pragma omp parallel
-			{
-				#pragma omp for schedule(static) reduction(+:total_size)
-				for (int i = 0; i < numNodes; i++) {
-					bool hasAdded = false;
-					if (hasVertex(u, i) && f(i)) {
-						hasAdded = true;
-						total_size += 1;
-					}
-					DenseSetMapValue(ret, i, hasAdded);
+			#pragma omp parallel for schedule(static) reduction(+:total_size)
+			for (int i = 0; i < numNodes; i++) {
+				bool hasAdded = false;
+				if (hasVertex(u, i) && f(i)) {
+					hasAdded = true;
+					total_size += 1;
 				}
+				DenseSetMapValue(ret, i, hasAdded);
 			}
 			setSize(ret, total_size);			
 			return ret;
 		}
 		else {
-			#pragma omp parallel for 
+			#pragma omp parallel for schedule(static)
 			for (int i = 0; i < numNodes; i++) {
 				if(hasVertex(u, i))
 					f(i);
