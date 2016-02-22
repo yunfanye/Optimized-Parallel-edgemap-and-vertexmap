@@ -16,6 +16,7 @@
 #define NUMWORDS 1 // K / 32 where 32 is the number of bits in a word
 #define YESRETURN 1
 #define NORETURN 0
+#define NOREMOVEDUPLICATE 0
 
 
 class RadiiUpdate 
@@ -188,7 +189,7 @@ void kBFS(graph *g, int *distField) {
   while (frontier->size > 0) {
     iter = iter + 1;
     RadiiUpdate ru(visited, nextVisited, radii, iter);
-    newFrontier = edgeMap(g, frontier, ru);
+    newFrontier = edgeMap(g, frontier, ru, NOREMOVEDUPLICATE);
 
     freeVertexSet(frontier);
     frontier = newFrontier;

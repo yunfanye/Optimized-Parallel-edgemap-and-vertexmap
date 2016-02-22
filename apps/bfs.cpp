@@ -7,6 +7,7 @@
 #include "graph_internal.h"
 
 #define NA -1
+#define NOREMOVEDUPLICATE 0
 
 class Bfs
 {
@@ -50,7 +51,7 @@ void bfs(graph *g, int *solution) {
   VertexSet *newFrontier;
 
   while (frontier->size != 0) {
-    newFrontier = edgeMap<Bfs>(g, frontier, f);
+    newFrontier = edgeMap<Bfs>(g, frontier, f, NOREMOVEDUPLICATE);
     freeVertexSet(frontier);
     frontier = newFrontier;
     f.currentDistance++;
