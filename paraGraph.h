@@ -15,6 +15,8 @@
 #include <time.h>
 #include <immintrin.h>
 
+#define CHUNK_SIZE 32
+
 /*
  * edgeMap --
  * 
@@ -97,20 +99,24 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		// Vertex is typedef'ed as int 
 		int total_size = 0;
 		#pragma omp parallel for schedule(static) reduction(+:total_size)
-		for(Vertex i = 0; i < total_num; i++) {
-			bool hasAdded = false;
-
-			if (f.cond(i)) {
-				const Vertex* start = incoming_begin(g, i);
-				const Vertex* end = incoming_end(g, i);					
-				for (const Vertex* k = start; k != end; k++) {
-					if (hasVertex(u, *k) && f.update(*k, i) && !hasAdded) {
-						hasAdded = true;
-						total_size += 1;
+		for(Vertex chunk = 0; chunk < total_num; chunk+=CHUNK_SIZE) {
+			int mapValue = 0;
+			for(int i = chunk; i < (chunk + CHUNK_SIZE); i++) {
+				if (i < total_num && f.cond(i)) {
+					bool hasAdded = false;
+					const Vertex* start = incoming_begin(g, i);
+					const Vertex* end = incoming_end(g, i);					
+					for (const Vertex* k = start; k != end; k++) {
+						if (DenseHasVertex(u, *k) && f.update(*k, i) 
+							&& !hasAdded) {
+							hasAdded = true;
+							mapValue |= 1 << (i - chunk);
+							total_size += 1;
+						}
 					}
 				}
 			}
-			DenseSetMapValue(ret, i, hasAdded);
+			DenseSetMapValue(ret, chunk / CHUNK_SIZE, mapValue);
 		}
 		setSize(ret, total_size);
 	}
@@ -172,21 +178,23 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 			int total_size = 0;
 			VertexSet* ret = newVertexSet(DENSE, size, numNodes);		
 			#pragma omp parallel for schedule(static) reduction(+:total_size)
-			for (int i = 0; i < numNodes; i++) {
-				bool hasAdded = false;
-				if (hasVertex(u, i) && f(i)) {
-					hasAdded = true;
-					total_size += 1;
+			for(int chunk = 0; chunk < numNodes; chunk+=CHUNK_SIZE) {
+				int mapValue = 0;
+				for(int i = chunk; i < (chunk + CHUNK_SIZE); i++) {
+					if (DenseHasVertex(u, i) && f(i)) {
+						mapValue |= 1 << (i - chunk);
+						total_size += 1;
+					}
 				}
-				DenseSetMapValue(ret, i, hasAdded);
+				DenseSetMapValue(ret, chunk / CHUNK_SIZE, mapValue);
 			}
-			setSize(ret, total_size);			
+			setSize(ret, total_size);		
 			return ret;
 		}
 		else {
 			#pragma omp parallel for schedule(static)
 			for (int i = 0; i < numNodes; i++) {
-				if(hasVertex(u, i))
+				if(DenseHasVertex(u, i))
 					f(i);
 			}
 			return NULL;

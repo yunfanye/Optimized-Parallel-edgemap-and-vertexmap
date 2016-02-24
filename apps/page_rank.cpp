@@ -11,6 +11,8 @@
 
 #include <utility>
 
+#define CHUNK_SIZE 32
+
 template <class T>
 struct State
 {
@@ -100,8 +102,8 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
 
   VertexSet* frontier = newVertexSet(DENSE, numNodes, numNodes);
   #pragma omp parallel for
-  for (int i = 0; i < numNodes; i++) {
-    DenseSetMapValue(frontier, i, true);
+  for (int i = 0; i < (numNodes + CHUNK_SIZE - 1) / CHUNK_SIZE; i++) {
+    DenseSetMapValue(frontier, i, 0xFFFFFFFF);
   }
   setSize(frontier, numNodes);
 

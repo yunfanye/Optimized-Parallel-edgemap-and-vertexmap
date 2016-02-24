@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "mic.h"
 
+#define CHUNK_SIZE 32
 
 /**
  * Creates an empty VertexSet with the given type and capacity.
@@ -20,12 +21,13 @@ VertexSet *newVertexSet(VertexSetType type, int capacity, int numNodes)
 	VertexSet* set = (VertexSet*) malloc(sizeof(VertexSet));
 	set -> size = 0;     // Number of nodes in the set
 	set -> type = type; 
-	set -> numNodes = numNodes;
+	set -> numNodes = numNodes;	
 	if(type == SPARSE) {		
 		set -> vertices = (Vertex*) malloc(sizeof(Vertex) * capacity);
 	}
 	else {
-		set -> map = (bool*) malloc(sizeof(bool) * numNodes);
+		int mapSize = (numNodes + CHUNK_SIZE - 1) / CHUNK_SIZE;
+		set -> map = (int*) malloc(sizeof(int) * mapSize);
 	}
   	return set;
 }
@@ -39,18 +41,6 @@ void freeVertexSet(VertexSet *set)
 	free(set);
 }
 
-bool hasVertex(VertexSet *set, Vertex v) {
-	// thread safe, only for DENSE matrix
-  	if(set -> type == SPARSE) {
-  		assert(false);
-	}
-	else {
-		// Vertex is typedef'ed as int
-		#pragma vector nontemporal(set -> map)
-		return set -> map[v];
-	}
-}
-
 void addVertex(VertexSet *set, Vertex v)
 {
 	// thread-safe
@@ -59,10 +49,7 @@ void addVertex(VertexSet *set, Vertex v)
 		set -> vertices[size] = v;
 	} 
 	else {
-		// Vertex is typedef'ed as int
-		__sync_fetch_and_add(&set -> size, 1);
-		#pragma vector nontemporal(set -> map)
-		set -> map[v] = true;
+		assert(false);
 	}
 }
 
@@ -82,9 +69,7 @@ void removeVertex(VertexSet *set, Vertex v)
 		set -> size = size - 1;
 	}
 	else {
-		// Vertex is typedef'ed as int
-		__sync_fetch_and_sub(&set -> size, 1);
-		set -> map[v] = false;
+		assert(false);
 	}
 }
 
@@ -108,13 +93,14 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 	Vertex * vertices = old -> vertices;
 
 	#pragma omp parallel for schedule(static)
-	for(int i = 0; i < numNodes; i++) {
-		new_set -> map[i] = false;
+	for(int i = 0; i < (numNodes + CHUNK_SIZE - 1) / CHUNK_SIZE; i++) {
+		DenseSetMapValue(new_set, i, 0);
 	}
 
-	#pragma omp parallel for schedule(static)
 	for(int i = 0; i < size; i++) {
-		DenseSetMapValue(new_set, vertices[i], true);
+		int base = vertices[i] / CHUNK_SIZE;
+		int offset = vertices[i] % CHUNK_SIZE;
+		DenseSetMapValue(new_set, base, 1 << offset);
 	}
 	setSize(new_set, size);
 	return new_set;
@@ -126,7 +112,7 @@ VertexSet* ConvertDenseToSparse(VertexSet* old) {
 	VertexSet* new_set = newVertexSet(SPARSE, size, numNodes);
 	#pragma omp parallel for 
 	for (int i = 0; i < numNodes; ++i) {
-		if(hasVertex(old, i))
+		if(DenseHasVertex(old, i))
 			addVertex(new_set, i);
 	}
 	return new_set;
