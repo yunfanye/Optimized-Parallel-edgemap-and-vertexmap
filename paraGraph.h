@@ -55,16 +55,15 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 	int size = u -> size;
 	int total_num = num_nodes(g);	
 	VertexSet* ret;
-	bool need_free = false;
-	int capacity = 10;
-	if(size < total_num / 20) {	
-		Vertex * vertices = u -> vertices;	
+	bool need_free = false;	
+	if(size < total_num / 20) {		
 		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
-			vertices = u -> vertices;
 			need_free = true;
 		}
+		int capacity = 10;	
+		Vertex * vertices = u -> vertices;	
 		for (int i = 0; i < size; i++) {
 			int diff = outgoing_size(g, vertices[i]);
 			capacity += diff;
@@ -101,8 +100,8 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		#pragma omp parallel for schedule(static) reduction(+:total_size)
 		for(Vertex chunk = 0; chunk < total_num; chunk+=CHUNK_SIZE) {
 			int mapValue = 0;
-			for(int i = chunk; i < (chunk + CHUNK_SIZE); i++) {
-				if (i < total_num && f.cond(i)) {
+			for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < total_num; i++) {
+				if (f.cond(i)) {
 					bool hasAdded = false;
 					const Vertex* start = incoming_begin(g, i);
 					const Vertex* end = incoming_end(g, i);					
@@ -193,9 +192,13 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 		}
 		else {
 			#pragma omp parallel for schedule(static)
-			for (int i = 0; i < numNodes; i++) {
-				if(DenseHasVertex(u, i))
-					f(i);
+			for(int chunk = 0; chunk < numNodes; chunk+=CHUNK_SIZE) {
+				int base = chunk / CHUNK_SIZE;
+				int map = DenseGetMapValue(u, base);
+				for(int i = 0; i < CHUNK_SIZE; i++) {
+					if((map & (1 << i)))
+						f(i + chunk);
+				}
 			}
 			return NULL;
 		}

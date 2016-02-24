@@ -100,7 +100,7 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 	for(int i = 0; i < size; i++) {
 		int base = vertices[i] / CHUNK_SIZE;
 		int offset = vertices[i] % CHUNK_SIZE;
-		DenseSetMapValue(new_set, base, 1 << offset);
+		DenseSetMapValue(new_set, base, new_set -> map[base] | 1 << offset);
 	}
 	setSize(new_set, size);
 	return new_set;

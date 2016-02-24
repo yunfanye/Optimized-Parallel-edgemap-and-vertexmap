@@ -34,6 +34,10 @@ inline void DenseSetMapValue(VertexSet* set, Vertex v, int value) {
 	set -> map[v] = value;
 }
 
+inline int DenseGetMapValue(VertexSet* set, Vertex v) {
+	return set -> map[v];
+}
+
 inline void setSize(VertexSet *set, int size) {
 	set -> size = size;
 }
