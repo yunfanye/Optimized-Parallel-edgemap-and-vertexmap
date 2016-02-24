@@ -110,7 +110,7 @@ VertexSet* ConvertDenseToSparse(VertexSet* old) {
 	int size = old -> size;
 	int numNodes = old -> numNodes;
 	VertexSet* new_set = newVertexSet(SPARSE, size, numNodes);
-	#pragma omp parallel for 
+	#pragma omp parallel for schedule(static)
 	for (int i = 0; i < numNodes; ++i) {
 		if(DenseHasVertex(old, i))
 			addVertex(new_set, i);
