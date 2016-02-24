@@ -199,7 +199,7 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 				int map = DenseGetMapValue(u, base);
 				for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < numNodes; i++) {
 					if((map & (1 << (i-chunk))))
-						f(i + chunk);
+						f(i);
 				}
 			}
 			return NULL;
