@@ -56,18 +56,20 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 	int total_num = num_nodes(g);	
 	VertexSet* ret;
 	bool need_free = false;	
-	if(size < total_num / 20) {		
+	if(size < total_num / 100) {		
 		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
 			need_free = true;
 		}
-		int capacity = 10;	
-		Vertex * vertices = u -> vertices;	
+		int capacity = 0;	
+		Vertex * vertices = u -> vertices;
+		#pragma omp parallel for schedule(static) reduction(+:capacity)
 		for (int i = 0; i < size; i++) {
 			int diff = outgoing_size(g, vertices[i]);
 			capacity += diff;
 		}
+		capacity += 10;
 		// top down approach
 		ret = newVertexSet(SPARSE, capacity, total_num);
 		ts_hashtable * hash_table;
