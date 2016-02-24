@@ -12,7 +12,7 @@
 #include <utility>
 
 #define CHUNK_SIZE 32
-
+#define NORETURN 0
 
 template <class T>
 struct State
@@ -113,11 +113,10 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
     Local<float> local(g, s.pcurr, s.pnext, s.diff, damping);
 
     VertexSet* frontier2 = edgeMap<State<float> >(g, frontier, s);
-    VertexSet* frontier3 = vertexMap<Local<float> >(frontier2, local);
+    vertexMap<Local<float> >(frontier2, local, NORETURN);
 
     freeVertexSet(frontier);
-    freeVertexSet(frontier2);
-    frontier = frontier3;
+    frontier = frontier2;
 
     error = s.getError();
     std::swap(s.pcurr, s.pnext);
