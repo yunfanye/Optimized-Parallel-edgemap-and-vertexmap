@@ -23,7 +23,7 @@ dirs:
 clean:
 		/bin/rm -rf $(OBJDIR) *~ $(APP_NAME) jobs/$(USER)_*.job
 
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/parse_args.o $(OBJDIR)/ts_hashtable.o $(OBJDIR)/graph.o $(OBJDIR)/vertex_set.o $(APPSOBJDIR)/bfs.o $(APPSOBJDIR)/page_rank.o $(APPSOBJDIR)/graph_decomposition.o $(APPSOBJDIR)/kBFS.o
+OBJS=$(OBJDIR)/main.o $(OBJDIR)/parse_args.o $(OBJDIR)/ts_hashtable.o $(OBJDIR)/util.o $(OBJDIR)/graph.o $(OBJDIR)/vertex_set.o $(APPSOBJDIR)/bfs.o $(APPSOBJDIR)/page_rank.o $(APPSOBJDIR)/graph_decomposition.o $(APPSOBJDIR)/kBFS.o
 
 # Generate job for specific app and graph
 jobs: $(APP_NAME)
