@@ -179,7 +179,7 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 			#pragma omp parallel for schedule(static) reduction(+:total_size)
 			for(int chunk = 0; chunk < numNodes; chunk+=CHUNK_SIZE) {
 				int mapValue = 0;
-				for(int i = chunk; i < (chunk + CHUNK_SIZE); i++) {
+				for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < numNodes; i++) {
 					if (DenseHasVertex(u, i) && f(i)) {
 						mapValue |= 1 << (i - chunk);
 						total_size += 1;
@@ -195,8 +195,8 @@ static VertexSet *vertexMap(VertexSet *u, F &f, bool returnSet=true)
 			for(int chunk = 0; chunk < numNodes; chunk+=CHUNK_SIZE) {
 				int base = chunk / CHUNK_SIZE;
 				int map = DenseGetMapValue(u, base);
-				for(int i = 0; i < CHUNK_SIZE; i++) {
-					if((map & (1 << i)))
+				for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < numNodes; i++) {
+					if((map & (1 << (i-chunk))))
 						f(i + chunk);
 				}
 			}
