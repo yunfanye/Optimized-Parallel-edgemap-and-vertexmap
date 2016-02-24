@@ -104,18 +104,17 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		for(Vertex chunk = 0; chunk < total_num; chunk+=CHUNK_SIZE) {
 			int mapValue = 0;
 			for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < total_num; i++) {
-				if (f.cond(i)) {
-					bool hasAdded = false;
-					const Vertex* start = incoming_begin(g, i);
-					const Vertex* end = incoming_end(g, i);					
-					for (const Vertex* k = start; k != end; k++) {
-						if ((u -> size == u -> numNodes || DenseHasVertex(u, *k)) 
-							&& f.update(*k, i) && !hasAdded) {
-							hasAdded = true;
-							mapValue |= 1 << (i - chunk);
-							total_size += 1;
-						}
+				bool hasAdded = false;
+				const Vertex* k = incoming_begin(g, i);
+				const Vertex* end = incoming_end(g, i);				
+				while(f.cond(i) && k != end) {
+					if ((u -> size == u -> numNodes || DenseHasVertex(u, *k)) 
+						&& f.update(*k, i) && !hasAdded) {
+						hasAdded = true;
+						mapValue |= 1 << (i - chunk);
+						total_size += 1;
 					}
+					k++;
 				}
 			}
 			DenseSetMapValue(ret, chunk / CHUNK_SIZE, mapValue);
