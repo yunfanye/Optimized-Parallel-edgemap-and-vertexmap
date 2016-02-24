@@ -56,7 +56,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 	int total_num = num_nodes(g);	
 	VertexSet* ret;
 	bool need_free = false;	
-	if(size < total_num / 100) {		
+	if(size < total_num / 200) {		
 		// ensure uq is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
@@ -75,12 +75,13 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		ts_hashtable * hash_table;
 		if(removeDuplicates)
 			hash_table = new_hashtable(capacity | 1); //odd number capacity
-		#pragma omp parallel for 
+		#pragma omp parallel for schedule(static)
 		for (int i = 0; i < size; i++) {
-			const Vertex* start = outgoing_begin(g, vertices[i]);
-			const Vertex* end = outgoing_end(g, vertices[i]);
+			const Vertex v_i = vertices[i];
+			const Vertex* start = outgoing_begin(g, v_i);
+			const Vertex* end = outgoing_end(g, v_i);
 			for (const Vertex* k = start; k != end; k++) {
-				if (f.cond(*k) && f.update(vertices[i], *k) && 
+				if (f.cond(*k) && f.update(v_i, *k) && 
 					(!removeDuplicates || !hashtable_set(hash_table, *k))) {
 					addVertex(ret, *k);
 				}
@@ -108,8 +109,8 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 					const Vertex* start = incoming_begin(g, i);
 					const Vertex* end = incoming_end(g, i);					
 					for (const Vertex* k = start; k != end; k++) {
-						if (DenseHasVertex(u, *k) && f.update(*k, i) 
-							&& !hasAdded) {
+						if ((u -> size == u -> numNodes || DenseHasVertex(u, *k)) 
+							&& f.update(*k, i) && !hasAdded) {
 							hasAdded = true;
 							mapValue |= 1 << (i - chunk);
 							total_size += 1;
