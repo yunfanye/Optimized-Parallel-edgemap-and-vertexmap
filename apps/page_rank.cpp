@@ -102,7 +102,7 @@ void pageRank(Graph g, float* solution, float damping, float convergence)
   State<float> s(g, damping, convergence);
 
   VertexSet* frontier = newVertexSet(DENSE, numNodes, numNodes);
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < (numNodes + CHUNK_SIZE - 1) / CHUNK_SIZE; i++) {
     DenseSetMapValue(frontier, i, 0xFFFFFFFF);
   }
