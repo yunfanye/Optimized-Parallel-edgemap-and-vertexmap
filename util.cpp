@@ -1,5 +1,19 @@
 #include "util.h"
 
+/* Helper function to round up to a power of 2. 
+ */
+int nextPow2(int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+    return n;
+}
+
 void exclusive_scan(int* array, int num)
 {
     int N = num;

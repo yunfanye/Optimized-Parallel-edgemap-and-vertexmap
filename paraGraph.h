@@ -11,11 +11,13 @@
 
 #include "mic.h"
 #include "ts_hashtable.h"
+#include "util.h"
 
 #include <time.h>
 #include <immintrin.h>
 
 #define CHUNK_SIZE 32
+#define MAX_THREAD_NUM 256
 
 /*
  * edgeMap --
@@ -52,6 +54,8 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 
   // remove_duplicates(outputSubset)
   // return outputSubset
+	static int edge_counts[MAX_THREAD_NUM];
+	static int edge_sizes[MAX_THREAD_NUM];
 	int size = u -> size;
 	int total_num = num_nodes(g);	
 	VertexSet* ret;
@@ -62,31 +66,73 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 			u = ConvertDenseToSparse(u);
 			need_free = true;
 		}
-		int capacity = 0;	
-		Vertex * vertices = u -> vertices;
-		#pragma omp parallel for schedule(static) reduction(+:capacity)
-		for (int i = 0; i < size; i++) {
-			int diff = outgoing_size(g, vertices[i]);
-			capacity += diff;
-		}
-		capacity += 10;
-		// top down approach
-		ret = newVertexSet(SPARSE, capacity, total_num);
 		ts_hashtable * hash_table;
+		int max_threads = omp_get_max_threads();	
+		Vertex * vertices = u -> vertices;
+		#pragma omp parallel
+		{
+			int numThreads = omp_get_num_threads();
+			int blockSize = (size + numThreads - 1)/ numThreads;
+			int tid = omp_get_thread_num();
+			int start = blockSize * tid;
+			int end = start + blockSize;
+			end = end > size ? size : end;
+			int localCount = 0;
+			for (int i = start; i < end; i++) {
+				int diff = outgoing_size(g, vertices[i]);
+				localCount += diff;
+			}
+			#pragma vector nontemporal(edge_counts)
+			edge_counts[tid] = localCount;
+		}
+
+		int numNextPow2 = nextPow2(max_threads + 1);
+		exclusive_scan(edge_counts, numNextPow2);	
+		int capacity = edge_counts[max_threads];
+		int * edges = (int *)malloc(sizeof(int) * (capacity + 1));
+		// top down approach
 		if(removeDuplicates)
 			hash_table = new_hashtable(capacity | 1); //odd number capacity
-		#pragma omp parallel for schedule(static)
-		for (int i = 0; i < size; i++) {
-			const Vertex v_i = vertices[i];
-			const Vertex* start = outgoing_begin(g, v_i);
-			const Vertex* end = outgoing_end(g, v_i);
-			for (const Vertex* k = start; k != end; k++) {
-				if (f.cond(*k) && f.update(v_i, *k) && 
-					(!removeDuplicates || !hashtable_set(hash_table, *k))) {
-					addVertex(ret, *k);
+		#pragma omp parallel
+		{
+			int numThreads = omp_get_num_threads();
+			int blockSize = (size + numThreads - 1)/ numThreads;
+			int tid = omp_get_thread_num();
+			int start = blockSize * tid;
+			int end = start + blockSize;
+			end = end > size ? size : end;
+			int localSize = 0;
+			int localOffset;
+			#pragma vector nontemporal(edge_counts)
+			localOffset = edge_counts[tid];
+			for (int i = start; i < end; i++) {
+				const Vertex v_i = vertices[i];
+				const Vertex* start = outgoing_begin(g, v_i);
+				const Vertex* end = outgoing_end(g, v_i);
+				for (const Vertex* k = start; k != end; k++) {
+					if (f.cond(*k) && f.update(v_i, *k) && 
+						(!removeDuplicates || !hashtable_set(hash_table, *k))) {
+						edges[localOffset + localSize] = *k;
+						localSize++;
+					}
 				}
 			}
+			#pragma vector nontemporal(edge_sizes)
+			edge_sizes[tid] = localSize;
 		}
+		exclusive_scan(edge_sizes, numNextPow2);
+		capacity = edge_sizes[max_threads];
+		ret = newVertexSet(SPARSE, capacity, total_num);
+		#pragma omp parallel for schedule(static)
+		for(int i = 0; i < max_threads; i++) {
+			int edge_sizestart = edge_sizes[i];
+			int edgeStart = edge_counts[i];
+			int length = edge_sizes[i + 1] - edge_sizes[i];
+			if(length > 0)
+				memcpy(&ret -> vertices[edge_sizestart], &edges[edgeStart], sizeof(int) * length);
+		}
+		setSize(ret, capacity);
+		free(edges);
 		if(removeDuplicates)
 			hashtable_free(hash_table);
 	}
