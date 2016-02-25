@@ -24,7 +24,7 @@ class Bfs
 
     bool update(Vertex src, Vertex dst) {
       if (distances_[dst] == NA)
-        return __sync_bool_compare_and_swap(distances_[dst], NA, currentDistance);
+        return __sync_bool_compare_and_swap(&distances_[dst], NA, currentDistance);
       else
         return false;
     }
