@@ -147,13 +147,15 @@ void kBFS(graph *g, int *distField) {
   int iter = 0;
 
   // set up globals
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < g->num_nodes; i++)
     distField[i] = NA;
   radii = distField;
 
   visited = (int**) malloc(sizeof(int*) * g->num_nodes);
   nextVisited = (int**) malloc(sizeof(int*) * g->num_nodes);
-
+  
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < g->num_nodes; i++) {
     visited[i] = (int*) malloc(sizeof(int) * NUMWORDS);
     nextVisited[i] = (int*) malloc(sizeof(int) * NUMWORDS);
@@ -197,7 +199,7 @@ void kBFS(graph *g, int *distField) {
     VisitedCopy vc(visited, nextVisited);
     vertexMap(frontier, vc, NORETURN);
   }
-
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < g->num_nodes; i++) {
     free(visited[i]);
     free(nextVisited[i]);
