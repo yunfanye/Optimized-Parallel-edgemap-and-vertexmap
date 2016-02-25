@@ -60,8 +60,8 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 	int total_num = num_nodes(g);	
 	VertexSet* ret;
 	bool need_free = false;	
-	if(size < total_num / 200) {		
-		// ensure uq is SPARSE
+	if(size < total_num / 100) {		
+		// ensure u is SPARSE
 		if(u -> type != SPARSE) {
 			u = ConvertDenseToSparse(u);
 			need_free = true;
@@ -146,7 +146,7 @@ static VertexSet *edgeMap(Graph g, VertexSet *u, F &f,
 		ret = newVertexSet(DENSE, size, total_num);
 		// Vertex is typedef'ed as int 
 		int total_size = 0;
-		#pragma omp parallel for schedule(dynamic, 64) reduction(+:total_size)
+		#pragma omp parallel for schedule(dynamic, 32) reduction(+:total_size)
 		for(Vertex chunk = 0; chunk < total_num; chunk+=CHUNK_SIZE) {
 			int mapValue = 0;
 			for(int i = chunk; i < (chunk + CHUNK_SIZE) && i < total_num; i++) {

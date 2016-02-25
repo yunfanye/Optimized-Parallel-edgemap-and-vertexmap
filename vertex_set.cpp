@@ -97,10 +97,11 @@ VertexSet* ConvertSparseToDense(VertexSet* old) {
 		DenseSetMapValue(new_set, i, 0);
 	}
 
+	#pragma omp parallel for schedule(static)
 	for(int i = 0; i < size; i++) {
 		int base = vertices[i] / CHUNK_SIZE;
 		int offset = vertices[i] % CHUNK_SIZE;
-		DenseSetMapValue(new_set, base, new_set -> map[base] | 1 << offset);
+		__sync_fetch_and_or(&new_set -> map[base], 1 << offset);
 	}
 	setSize(new_set, size);
 	return new_set;
