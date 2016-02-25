@@ -24,7 +24,7 @@ struct State
     pcurr = (T*)(malloc(sizeof(T) * numNodes));
     pnext = (T*)(malloc(sizeof(T) * numNodes));
     diff = (T*)(malloc(sizeof(T) * numNodes));
-
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < numNodes; i++) {
       pcurr[i] = 1.0 / numNodes;
       pnext[i] = 0.0;
