@@ -16,7 +16,6 @@
 #define NUMWORDS 1 // K / 32 where 32 is the number of bits in a word
 #define YESRETURN 1
 #define NORETURN 0
-#define NOREMOVEDUPLICATE 0
 
 
 class RadiiUpdate 
@@ -44,7 +43,7 @@ class RadiiUpdate
         }
       }
       return changed;
-    }	
+    } 
 
     bool cond(Vertex v) {
       return true;
@@ -94,8 +93,8 @@ class Init
 
       while (!success) {
         success = __sync_bool_compare_and_swap(&visited[v][word], oldWord, newWord);
-	oldWord = visited[v][word];
-	newWord = oldWord | 1 << bit;
+  oldWord = visited[v][word];
+  newWord = oldWord | 1 << bit;
       }
 
       oldWord = nextVisited[v][word];
@@ -103,9 +102,9 @@ class Init
       success = false;
 
       while (!success) {
-	success = __sync_bool_compare_and_swap(&nextVisited[v][word], oldWord, newWord);
-    	oldWord = nextVisited[v][word];
-	newWord = oldWord | 1 << bit;
+  success = __sync_bool_compare_and_swap(&nextVisited[v][word], oldWord, newWord);
+      oldWord = nextVisited[v][word];
+  newWord = oldWord | 1 << bit;
       }
 
       radii[v] = 0;
@@ -154,8 +153,7 @@ void kBFS(graph *g, int *distField) {
 
   visited = (int**) malloc(sizeof(int*) * g->num_nodes);
   nextVisited = (int**) malloc(sizeof(int*) * g->num_nodes);
-  
-  #pragma omp parallel for schedule(static)
+
   for (int i = 0; i < g->num_nodes; i++) {
     visited[i] = (int*) malloc(sizeof(int) * NUMWORDS);
     nextVisited[i] = (int*) malloc(sizeof(int) * NUMWORDS);
@@ -191,7 +189,7 @@ void kBFS(graph *g, int *distField) {
   while (frontier->size > 0) {
     iter = iter + 1;
     RadiiUpdate ru(visited, nextVisited, radii, iter);
-    newFrontier = edgeMap(g, frontier, ru, NOREMOVEDUPLICATE);
+    newFrontier = edgeMap(g, frontier, ru);
 
     freeVertexSet(frontier);
     frontier = newFrontier;
@@ -199,7 +197,7 @@ void kBFS(graph *g, int *distField) {
     VisitedCopy vc(visited, nextVisited);
     vertexMap(frontier, vc, NORETURN);
   }
-  #pragma omp parallel for schedule(static)
+
   for (int i = 0; i < g->num_nodes; i++) {
     free(visited[i]);
     free(nextVisited[i]);
